@@ -10,7 +10,7 @@ void main() async {
   Hive.init(directory.path);
   Hive.registerAdapter(NotesModelAdapter());
   await Hive.openBox<NotesModel>('notes');
-  
+
   runApp(const MyApp());
 }
 
@@ -30,6 +30,7 @@ class MyApp extends StatelessWidget {
             backgroundColor: Colors.blue, foregroundColor: Colors.white),
         useMaterial3: true,
       ),
+      debugShowCheckedModeBanner: false,
       home: const HomeScreen(),
     );
   }

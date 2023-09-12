@@ -31,13 +31,36 @@ class _HomeScreenState extends State<HomeScreen> {
                 itemBuilder: (context, index) {
                   return Card(
                     child: ListTile(
-                      title: Text(data[index].title),
-                      subtitle: Text(data[index].description),
-                      trailing: Icon(
-                        Icons.delete_forever,
-                        color: Colors.red,
-                      ),
-                    ),
+                        title: Text(
+                          data[index].title,
+                          style: const TextStyle(
+                              fontSize: 18, fontWeight: FontWeight.bold),
+                        ),
+                        subtitle: Text(data[index].description),
+                        trailing: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            InkWell(
+                              onTap: () {
+                                editNotes(data[index], data[index].title,
+                                    data[index].description);
+                              },
+                              child: const Icon(Icons.edit),
+                            ),
+                            const SizedBox(
+                              width: 10,
+                            ),
+                            InkWell(
+                              onTap: () {
+                                deleteNotes(data[index]);
+                              },
+                              child: const Icon(
+                                Icons.delete_forever,
+                                color: Colors.red,
+                              ),
+                            ),
+                          ],
+                        )),
                   );
                 });
           }),
@@ -48,6 +71,64 @@ class _HomeScreenState extends State<HomeScreen> {
         child: const Icon(Icons.add),
       ),
     );
+  }
+
+  void deleteNotes(NotesModel notesModel) async {
+    await notesModel.delete();
+  }
+
+  void editNotes(
+      NotesModel notesModel, String title, String description) async {
+    titleController.text = title;
+    descController.text = description;
+
+    return showDialog(
+        context: context,
+        builder: (context) {
+          return AlertDialog(
+            title: const Text('Add Notes'),
+            content: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                TextField(
+                  controller: titleController,
+                  textCapitalization: TextCapitalization.sentences,
+                  decoration: const InputDecoration(
+                      hintText: 'Enter title', border: InputBorder.none),
+                ),
+                TextField(
+                  controller: descController,
+                  textCapitalization: TextCapitalization.sentences,
+                  decoration: const InputDecoration(
+                      hintText: 'Enter description', border: InputBorder.none),
+                ),
+              ],
+            ),
+            actions: [
+              TextButton(
+                  onPressed: () {
+                    Navigator.pop(context);
+                  },
+                  child: const Text(
+                    'Cancel',
+                    style: TextStyle(color: Colors.red),
+                  )),
+              TextButton(
+                  onPressed: () {
+                    notesModel.title = titleController.text;
+                    notesModel.description = descController.text;
+                    notesModel.save();
+                    titleController.clear();
+                    descController.clear();
+                    Navigator.pop(context);
+                  },
+                  child: const Text(
+                    'Update',
+                    style: TextStyle(color: Colors.blue),
+                  )),
+            ],
+          );
+        });
   }
 
   Future<void> _showDialog(BuildContext context) {
